@@ -1,0 +1,35 @@
+unit FacilitaFiscal.View.Styles.Colors;
+
+interface
+  uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes;
+
+  type
+  TStyles = class(TObject)
+  private
+
+  public
+
+  end;
+
+implementation
+
+{ TStyles }
+const
+  H0 = 32;
+  H1 = 26;
+  H2 = 22;
+  H3 = 20;
+  H4 = 18;
+  H6 = 14;
+  H7 = 12;
+  COLOR_BACKGROUND = $001E1213;
+  COLOR_HIGHLIGHT_MAIN = $00620FDD;
+  COLOR_HILIGHT_SECOND = $004600FA;
+  COLOR_BUTTON = $004A1379;
+  COLOR_BUTTON_HOVER = $004734FA;
+  COLOR_WHITE = $FFFFFF;
+
+
+
+end.

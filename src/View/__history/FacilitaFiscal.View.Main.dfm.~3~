@@ -1,0 +1,161 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Facilita Fiscal'
+  ClientHeight = 478
+  ClientWidth = 721
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnMain: TPanel
+    Left = 0
+    Top = 0
+    Width = 721
+    Height = 478
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'pnCenter'
+    ParentBackground = False
+    ShowCaption = False
+    TabOrder = 0
+    ExplicitLeft = 512
+    ExplicitTop = 288
+    ExplicitWidth = 185
+    ExplicitHeight = 41
+    object pnCenter: TPanel
+      Left = 112
+      Top = 0
+      Width = 732
+      Height = 593
+      BevelOuter = bvNone
+      Caption = 'pnCenter'
+      Color = 7824734
+      ParentBackground = False
+      ShowCaption = False
+      TabOrder = 0
+      object PageControl1: TPageControl
+        Left = 29
+        Top = 48
+        Width = 723
+        Height = 554
+        ActivePage = TabSheet1
+        TabOrder = 1
+        object TabSheet1: TTabSheet
+          Caption = 'TabSheet1'
+          ExplicitWidth = 680
+          ExplicitHeight = 509
+          object Panel1: TPanel
+            Left = 0
+            Top = 0
+            Width = 715
+            Height = 526
+            Align = alClient
+            BevelOuter = bvNone
+            Caption = 'pnCenter'
+            Color = 7824734
+            ParentBackground = False
+            ShowCaption = False
+            TabOrder = 0
+            ExplicitLeft = -4
+            object Shape1: TShape
+              Left = 272
+              Top = 57
+              Width = 281
+              Height = 320
+            end
+            object Panel5: TPanel
+              Left = 40
+              Top = 57
+              Width = 185
+              Height = 41
+              Caption = 'Importar XML'
+              TabOrder = 0
+              OnClick = Panel5Click
+            end
+            object Panel6: TPanel
+              Left = 40
+              Top = 112
+              Width = 185
+              Height = 41
+              Caption = 'Gerar DANFe'
+              TabOrder = 1
+            end
+          end
+        end
+        object TabSheet2: TTabSheet
+          Caption = 'TabSheet2'
+          ImageIndex = 1
+          ExplicitWidth = 686
+          ExplicitHeight = 485
+        end
+        object TabSheet3: TTabSheet
+          Caption = 'TabSheet3'
+          ImageIndex = 2
+          ExplicitWidth = 686
+          ExplicitHeight = 485
+        end
+      end
+      object pnTop: TPanel
+        Left = 0
+        Top = 0
+        Width = 732
+        Height = 80
+        Align = alTop
+        BevelOuter = bvNone
+        Caption = 'pnBackground'
+        Color = 12615680
+        ParentBackground = False
+        ShowCaption = False
+        TabOrder = 0
+        ExplicitTop = -6
+      end
+    end
+    object SplitView1: TSplitView
+      Left = 0
+      Top = 0
+      Width = 150
+      Height = 478
+      Color = 16744576
+      OpenedWidth = 150
+      Placement = svpLeft
+      TabOrder = 1
+      ExplicitLeft = -6
+      ExplicitHeight = 593
+      object Panel2: TPanel
+        Left = 0
+        Top = 129
+        Width = 150
+        Height = 49
+        Align = alTop
+        Caption = 'Panel2'
+        TabOrder = 0
+        ExplicitTop = 80
+      end
+      object Panel3: TPanel
+        Left = 0
+        Top = 0
+        Width = 150
+        Height = 80
+        Align = alTop
+        Caption = 'Panel2'
+        TabOrder = 1
+        ExplicitTop = 8
+      end
+      object Panel4: TPanel
+        Left = 0
+        Top = 80
+        Width = 150
+        Height = 49
+        Align = alTop
+        Caption = 'Panel2'
+        TabOrder = 2
+      end
+    end
+  end
+end

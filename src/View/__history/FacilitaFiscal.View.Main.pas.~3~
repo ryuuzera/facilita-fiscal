@@ -1,0 +1,83 @@
+unit FacilitaFiscal.View.Main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.WinXCtrls,
+  Vcl.ExtCtrls, ACBrNFeDANFEFR, ACBrDFe, ACBrNFe, FaciliaDanfe.Controller.Dados;
+
+type
+  TfrmMain = class(TForm)
+    pnCenter: TPanel;
+    pnTop: TPanel;
+    pnMain: TPanel;
+    SplitView1: TSplitView;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    Panel1: TPanel;
+    Panel5: TPanel;
+    Panel6: TPanel;
+    Shape1: TShape;
+    procedure Panel5Click(Sender: TObject);
+  private
+    { Private declarations }
+    NFe: TACBrNFe;
+    iNumeroNFe : integer;
+    ValorTotal : Double;
+    DataEmissao: TDate;
+    sSerieNFe,
+    sChaveAcesso,
+    sEmitente,
+    sDestinatario,
+    sCNPJ,
+    sArquivoXML: String;
+    procedure importaXML(aFileName: string);
+  public
+    { Public declarations }
+  end;
+
+
+var
+  frmMain: TfrmMain;
+
+implementation
+
+procedure TfrmMain.importaXML;
+begin
+  try
+    NFe := TACBrNFe.Create(nil);
+
+    Nfe.NotasFiscais.Clear;
+    if not NFe.NotasFiscais.LoadFromFile(aFileName, false) then
+      Exit;
+
+    DataEmissao           := NFe.NotasFiscais.Items[0].NFe.Ide.dEmi;
+    iNumeroNFe            := NFe.NotasFiscais.Items[0].NFe.Ide.nNF;
+    sSerieNFe             := IntToStr(NFe.NotasFiscais.Items[0].NFe.Ide.serie);
+    sChaveAcesso          := copy(NFe.NotasFiscais.Items[0].NFe.infNFe.ID, 4, 44);
+    ValorTotal            := NFe.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF;
+    sEmitente             := NFe.NotasFiscais.Items[0].NFe.Emit.xNome;
+    sDestinatario         := NFe.NotasFiscais.Items[0].NFe.Dest.CNPJCPF;
+    sArquivoXML           := NFe.NotasFiscais.Items[0].XML;
+
+
+  finally
+    FreeAndNil(Nfe);
+  end;
+
+end;
+
+procedure TfrmMain.Panel5Click(Sender: TObject);
+begin
+  if Dados.OpenDialog.Execute then
+    ImportaXML(Dados.OpenDialog.FileName);
+
+end;
+
+end.
