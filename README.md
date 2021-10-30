@@ -1,5 +1,5 @@
 # Facilita Fiscal (OpenSource)
-<a href="https://github.com/ryuuzera"><img src="https://img.shields.io/github/followers/ryuuzera?label=follow%20me&style=social"></a> <a href="#"><img src="https://img.shields.io/badge/Delphi-10.3.3-red">
+<a href="https://github.com/ryuuzera"><img src="https://img.shields.io/github/followers/ryuuzera?label=follow%20me&style=social"></a> <a href="#"><img src="https://img.shields.io/badge/Delphi-10.3.3-red"></a>
  <h6>English/Português(Brasil)<br/></h6>
  <p>Ferramenta Open Source com funcionalidades relacionadas a documentos fiscais (NFe, CFe).<br/><b>Toda interface foi construída utilizando apenas os componentes nativos do Delphi Community 10.3.3 Rio.</b><br/>Algumas funcionalidades dependem dos <a href="https://projetoacbr.com.br/">componentes ACBr.</a>
  <h6>Open Source tool to facilitate brazilian invoice and tax document operations<br/>The entire interface was develop using only VCL Delphi 10.3.3 Rio components.<br/>For extras funcionalities I've use the <a href="https://projetoacbr.com.br/">ACBr lib.</a></h6></p>
