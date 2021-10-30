@@ -8,16 +8,37 @@ uses
 
 Type
   Biblioteca = Class
-    private
-    public
-    class function ShellExecuteAndWait(Operation, FileName, Parameter, Directory: String; Show: Word; bWait: Boolean): Longint;
+  class function ShellExecuteAndWait(Operation, FileName, Parameter, Directory: String; Show: Word; bWait: Boolean): Longint;
+  class procedure AbrirArquivo(aFileName: String);
+  class function getVersao: string;
   End;
 
 implementation
 
+uses
+  System.UITypes;
 
 
 { Biblioteca }
+
+class procedure Biblioteca.AbrirArquivo(aFileName: String);
+var
+  SavCursor: TCursor;
+begin
+  SavCursor := Screen.Cursor;
+  Screen.Cursor := crHourGlass;
+  try
+    ShellExecuteAndWait('open', aFileName, '', '', SW_SHOWMAXIMIZED, True);
+  finally
+    Screen.Cursor := SavCursor;
+  end;
+
+end;
+
+class function Biblioteca.getVersao: string;
+begin
+  result := 'v0.1 pre-alpha';
+end;
 
 class function Biblioteca.ShellExecuteAndWait(Operation, FileName, Parameter,
   Directory: String; Show: Word; bWait: Boolean): Longint;
@@ -48,5 +69,6 @@ begin
   if not bOK then
     Result := -1;
 end;
+
 
 end.
