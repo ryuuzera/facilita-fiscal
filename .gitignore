@@ -1,8 +1,8 @@
 
-src/Controller/__recovery/*.*
-src/Controller/__history/*.*
-src/Project/__recovery/*.*
-src/Project/__history/*.*
-src/View/__recovery/*.*
-src/View/__history/*.*
-src/Project/Win32/*.*
+src/Controller/__recovery
+src/Controller/__history
+src/Project/__recovery
+src/Project/__history
+src/View/__recovery
+src/View/__history
+src/Project/Win32

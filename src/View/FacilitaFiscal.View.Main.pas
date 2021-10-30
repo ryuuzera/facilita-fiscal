@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.WinXCtrls,
   Vcl.ExtCtrls, ACBrNFeDANFEFR, ACBrDFe, ACBrNFe, FaciliaDanfe.Controller.Dados,
   FacilitaDanfe.Controller.Biblioteca,
-  Vcl.StdCtrls, Vcl.Imaging.jpeg, Vcl.Imaging.pngimage, ACBrGIF;
+  Vcl.StdCtrls, Vcl.Imaging.jpeg, Vcl.Imaging.pngimage, ACBrGIF, Vcl.Buttons;
 
 type
   TfrmMain = class(TForm)
@@ -18,7 +18,7 @@ type
     pnMain: TPanel;
     pnCenter: TPanel;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
+    tabGeraDanfe: TTabSheet;
     Panel1: TPanel;
     Image1: TImage;
     Label1: TLabel;
@@ -40,18 +40,39 @@ type
     rbRetrato: TRadioButton;
     rbPaisagem: TRadioButton;
     Panel6: TPanel;
-    TabSheet2: TTabSheet;
+    TabInicio: TTabSheet;
     Panel4: TPanel;
-    Image3: TImage;
     Label6: TLabel;
-    TabSheet3: TTabSheet;
+    tabExtrator: TTabSheet;
     Panel8: TPanel;
-    Image4: TImage;
     Label5: TLabel;
     pnTop: TPanel;
     lbInicio: TLabel;
     lbGeraDanfe: TLabel;
     lbExtrator: TLabel;
+    lbParametros: TLabel;
+    TabParametros: TTabSheet;
+    Panel5: TPanel;
+    Label11: TLabel;
+    Image3: TImage;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Edit1: TEdit;
+    Panel7: TPanel;
+    Edit2: TEdit;
+    Panel9: TPanel;
+    TabSheet1: TTabSheet;
+    Panel10: TPanel;
+    Image4: TImage;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Edit3: TEdit;
+    Panel11: TPanel;
+    Edit4: TEdit;
+    Panel12: TPanel;
     procedure pnbGeraDanfeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Panel6Click(Sender: TObject);
@@ -80,6 +101,9 @@ type
     procedure lbGeraDanfeClick(Sender: TObject);
     procedure lbInicioClick(Sender: TObject);
     procedure lbExtratorClick(Sender: TObject);
+    procedure lbParametrosClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     { Private declarations }
     Timer: TTimer;
@@ -106,6 +130,7 @@ type
     procedure FadeIn;
     procedure OnTimer(Sender:TObject);
     function formatarChaveAcesso(aChave: String): string;
+    function paginaParametro: boolean;
   public
     { Public declarations }
   end;
@@ -212,6 +237,13 @@ begin
   end
   else
     Self.AlphaBlendValue := Self.AlphaBlendValue + 17;
+end;
+
+function TfrmMain.paginaParametro: boolean;
+begin
+  result := ((PageControl1.ActivePageIndex <> 3) and
+             (PageControl1.ActivePageIndex <> 4) and
+             (PageControl1.ActivePageIndex <> 5));
 end;
 
 procedure TfrmMain.carregaConfiguracoes;
@@ -367,6 +399,12 @@ begin
   MoveLabel(TLabel(Sender));
 end;
 
+procedure TfrmMain.lbParametrosClick(Sender: TObject);
+begin
+  if paginaParametro then
+    PageControl1.ActivePage := PageControl1.Pages[3];
+end;
+
 procedure TfrmMain.pnBarraSuperiorMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 const
@@ -381,6 +419,7 @@ var
  sXML, NomeArquivo: string;
  SaveDialog: TSaveDialog;
 begin
+  NFe.NotasFiscais.Clear;
   Try
     SaveDialog := TSaveDialog.Create(nil);
     if sArquivoXML <> '' then
@@ -420,6 +459,16 @@ procedure TfrmMain.pnbGeraDanfeMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   MoveBtnPanel(TPanel(Sender));
+end;
+
+procedure TfrmMain.SpeedButton1Click(Sender: TObject);
+begin
+  PageControl1.ActivePage := PageControl1.Pages[4]
+end;
+
+procedure TfrmMain.SpeedButton2Click(Sender: TObject);
+begin
+  PageControl1.ActivePage := PageControl1.Pages[3]
 end;
 
 procedure TfrmMain.Panel6Click(Sender: TObject);
