@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.WinXCtrls,
   Vcl.ExtCtrls, ACBrNFeDANFEFR, ACBrDFe, ACBrNFe, FaciliaDanfe.Controller.Dados,
-  FacilitaDanfe.Controller.Biblioteca,
+  FacilitaDanfe.Controller.Biblioteca, FileCtrl,
   Vcl.StdCtrls, Vcl.Imaging.jpeg, Vcl.Imaging.pngimage, ACBrGIF, Vcl.Buttons;
 
 type
@@ -45,7 +45,6 @@ type
     Label6: TLabel;
     tabExtrator: TTabSheet;
     Panel8: TPanel;
-    Label5: TLabel;
     pnTop: TPanel;
     lbInicio: TLabel;
     lbGeraDanfe: TLabel;
@@ -58,9 +57,9 @@ type
     Label12: TLabel;
     Label13: TLabel;
     Label14: TLabel;
-    Edit1: TEdit;
+    edDirPDF: TEdit;
     Panel7: TPanel;
-    Edit2: TEdit;
+    edImgLogo: TEdit;
     Panel9: TPanel;
     TabSheet1: TTabSheet;
     Panel10: TPanel;
@@ -73,6 +72,18 @@ type
     Panel11: TPanel;
     Edit4: TEdit;
     Panel12: TPanel;
+    Panel13: TPanel;
+    Image5: TImage;
+    Image6: TImage;
+    Image7: TImage;
+    sbDirPDF: TSpeedButton;
+    sbBuscaLogo: TSpeedButton;
+    pnbSvParamDANFe: TPanel;
+    Label19: TLabel;
+    lbNumeroNFe: TLabel;
+    Image8: TImage;
+    Panel14: TPanel;
+    ListBox1: TListBox;
     procedure pnbGeraDanfeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Panel6Click(Sender: TObject);
@@ -102,14 +113,22 @@ type
     procedure lbInicioClick(Sender: TObject);
     procedure lbExtratorClick(Sender: TObject);
     procedure lbParametrosClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure pnbSvParamDANFeMouseLeave(Sender: TObject);
+    procedure pnbSvParamDANFeMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure sbDirPDFClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormDestroy(Sender: TObject);
+    procedure pnbSvParamDANFeClick(Sender: TObject);
+    procedure sbBuscaLogoClick(Sender: TObject);
+    procedure Panel14Click(Sender: TObject);
   private
     { Private declarations }
     Timer: TTimer;
     NFe: TACBrNFe;
     DANFe: TACBrNFeDANFEFR;
-    iNumeroNFe : integer;
+    iNumeroNFe, iQuantidadeItens : integer;
     ValorTotal : Double;
     ValorTotalItens : Double;
     DataEmissao: TDate;
@@ -118,9 +137,10 @@ type
     sEmitente,
     sDestinatario,
     sCNPJ,
-    XML,
-    sArquivoXML: String;
+    sArquivoXML,
+    sPathTemp: String;
     procedure importaXML(aFileName: string);
+    procedure importaLoteXML(aFileName: string);
     procedure carregaConfiguracoes;
     procedure aplicaEstilos;
     procedure LeaveLabel(aLabel : TLabel);
@@ -128,10 +148,14 @@ type
     procedure LeaveBtnPanel(aPanel : TPanel);
     procedure MoveBtnPanel(aPanel : TPanel);
     procedure FadeIn;
+    procedure FadeOut;
     procedure OnTimer(Sender:TObject);
     function formatarChaveAcesso(aChave: String): string;
     function paginaParametro: boolean;
+    procedure VerificaOrientacao;
+    procedure GeraPDF;
   public
+    FPath: String;
     { Public declarations }
   end;
 
@@ -142,7 +166,8 @@ var
 implementation
 
 uses
-  pcnConversao, FacilitaFiscal.View.Styles.Colors;
+  pcnConversao, FacilitaFiscal.View.Styles.Colors, Winapi.ShellAPI,
+  Xml.XMLIntf, Xml.xmldom, Xml.XMLDoc, ACBrConsts, System.AnsiStrings;
 
 {$R *.dfm}
 
@@ -170,7 +195,6 @@ begin
         TLabel(Components[i]).Font.Quality := fqClearType;
         TLabel(Components[i]).Cursor := crHandPoint;
       end;
-
     end;
     {RadioButton}
     if (frmMain.Components[i].ClassName = 'TRadioButton') then
@@ -203,8 +227,6 @@ begin
         TPanel(frmMain.Components[i]).Color := COLOR_HIGHLIGHT;
       end;
     end;
-
-
   end;
 end;
 
@@ -239,11 +261,43 @@ begin
     Self.AlphaBlendValue := Self.AlphaBlendValue + 17;
 end;
 
-function TfrmMain.paginaParametro: boolean;
+
+function TfrmMain.paginaParametro: Boolean;
 begin
-  result := ((PageControl1.ActivePageIndex <> 3) and
+  Result := ((PageControl1.ActivePageIndex <> 3) and
              (PageControl1.ActivePageIndex <> 4) and
              (PageControl1.ActivePageIndex <> 5));
+end;
+
+procedure TfrmMain.VerificaOrientacao;
+begin
+  if rbPaisagem.checked then
+    DANFE.FastFile := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'DANFePaisagem.fr3';
+  if rbRetrato.Checked then
+    DANFE.FastFile := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'DANFeRetrato.fr3';
+end;
+
+procedure TfrmMain.GeraPDF;
+var
+  sXML: string;
+  sPath: string;
+begin
+  sXML := sArquivoXML;
+  NFe.NotasFiscais.LoadFromString(sXML);
+  ForceDirectories('C:\temp');
+  if FPath = '' then
+    FPath := 'C:\temp';
+  sPath := (FPath + '\' + sChaveAcesso + '-nfe.PDF');
+  NFe.DANFE.PathPDF := sPath;
+  NFe.NotasFiscais.ImprimirPDF;
+  if FileExists('%programfiles%\Google\Chrome\Application\chrome.exe') then
+    ShellExecute(0, nil, 'cmd.exe', PWideChar('/c start chrome --start-maximized --app=' + '"' + sPath + '"'), nil, SW_HIDE)
+  else if FileExists('%programfiles(x86)%\Microsoft\Edge\Application\msedge.exe') then
+    ShellExecute(0, nil, 'cmd.exe', PWideChar('/c start msedge ' + '"' + sPath + '"'), nil, SW_HIDE)
+  else if FileExists('%programfiles%\Microsoft\Edge\Application\msedge.exe') then
+    ShellExecute(0, nil, 'cmd.exe', PWideChar('/c start msedge ' + '"' + sPath + '"'), nil, SW_HIDE)
+  else
+    Biblioteca.AbrirArquivo(sPath);
 end;
 
 procedure TfrmMain.carregaConfiguracoes;
@@ -251,7 +305,6 @@ begin
   NFE.DANFE := DANFE;
   NFe.NotasFiscais.Clear;
   NFe.Configuracoes.WebServices.Ambiente := taProducao ;
-  DANFE.Site := 'fmsoftware.online';
   DANFE.Sistema := 'Facilita Fiscal ' + Biblioteca.getVersao;
   DANFE.PathPDF := 'C:\Projetos';
 end;
@@ -261,6 +314,14 @@ begin
   Self.AlphaBlend := True;
   Self.AlphaBlendValue := 0;
   Timer.OnTimer := OnTimer;
+  Timer.Interval := 3;
+  Timer.Enabled := True;
+end;
+
+procedure TfrmMain.FadeOut;
+begin
+  Self.AlphaBlend := True;
+  Self.AlphaBlendValue := 255;
   Timer.Interval := 3;
   Timer.Enabled := True;
 end;
@@ -279,8 +340,20 @@ begin
   Result := aChave;
 end;
 
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose := messagedlg('Deseja fechar?', mtInformation, [mbYes, mbNo], 0) = mryes;
+end;
+
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  Application.UpdateFormatSettings := false;
+  DecimalSeparator := ',';
   try
     NFe := TACBrNFe.Create(nil);
     Timer := TTimer.Create(nil);
@@ -291,6 +364,11 @@ begin
   except on E:exception do
     MessageDlg(e.Message, mtWarning, [mbOK], 0);
   end;
+end;
+
+procedure TfrmMain.FormDestroy(Sender: TObject);
+begin
+  freeandnil(application);
 end;
 
 procedure TfrmMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -304,40 +382,106 @@ end;
 
 procedure TfrmMain.Image2Click(Sender: TObject);
 begin
-   try
-    close;
-  finally
-    freeandnil(frmMain);
-  end;
+  close;
 end;
 
-procedure TfrmMain.importaXML;
+procedure TfrmMain.importaLoteXML(aFileName: string);
+var
+  Lista: TStringlist;
+  Node: IXMLDocument;
+  NodeCFe, nodenode: IXMLNode;
+  i: integer;
+  sNumeroCFe, sTotal: string;
+  fTotal: double;
+  ffTotal: double;
+  sChaveAcesso: variant;
 begin
-    Nfe.NotasFiscais.Clear;
-    if not NFe.NotasFiscais.LoadFromFile(aFileName, false) then
-      Exit;
+  Try
+    Lista := Tstringlist.Create;
+    Node := TXMLDocument.Create(nil);
+    Node.Active := True;
+    Node.LoadFromFile(aFileName);
+    NodeCFe := Node.ChildNodes.FindNode('envCFe').ChildNodes.FindNode('LoteCFe');
+    fTotal := 0.0;
+    for i := 0 to NodeCFe.ChildNodes.Count -1 do
+    begin
+        Lista.Add(NodeCFe.ChildNodes[i].XML);
+        {Extrai Chave Acesso}
+        sChaveAcesso := NodeCFe.ChildNodes[i]
+                         .ChildNodes.FindNode('infCFe')
+                          .Attributes['Id'];
+        {Extrai Numero Cupom}
+        sNumeroCFe := NodeCFe.ChildNodes[i]
+                        .ChildNodes
+                          .FindNode('infCFe')
+                            .ChildNodes
+                              .FindNode('ide')
+                                .ChildNodes
+                                  .FindNode('nCFe')
+                                    .Text;
+        {Extrai Extrai Valor Total Cupom}
+        sTotal := NodeCFe.ChildNodes[i]
+                    .ChildNodes
+                      .FindNode('infCFe')
+                        .ChildNodes
+                          .FindNode('total')
+                            .ChildNodes
+                              .FindNode('vCFe')
+                                .Text;
+        sTotal := ReplaceStr(sTotal, '.',',');
+        ffTotal := strToFloat(sTotal);
+        FTotal := FTotal + ffTotal;
+        Listbox1.Items.Add('Cupom: '+sNumeroCFe+'   Valor Total:  R$'+sTotal);
+        Lista.SaveToFile('C:\temp\'+VarToStr(sChaveAcesso)+'.xml');
+        Lista.Clear;
+    end;
+    Listbox1.Items.Add('Valor Total Cupons Importados: R$' +FormatFloat('#,0.00', fTotal) );
+  Finally
+    FreeAndNil(lista);
+    FreeAndNil(Node);
+  End;
+end;
 
-    DataEmissao             := NFe.NotasFiscais.Items[0].NFe.Ide.dEmi;
-    iNumeroNFe              := NFe.NotasFiscais.Items[0].NFe.Ide.nNF;
-    sSerieNFe               := IntToStr(NFe.NotasFiscais.Items[0].NFe.Ide.serie);
-    sChaveAcesso            := copy(NFe.NotasFiscais.Items[0].NFe.infNFe.ID, 4, 44);
-    ValorTotal              := NFe.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF;
-    ValorTotalItens         := NFe.NotasFiscais.Items[0].NFe.Total.ICMSTot.vProd;
-    sEmitente               := NFe.NotasFiscais.Items[0].NFe.Emit.xNome;
-    sDestinatario           := NFe.NotasFiscais.Items[0].NFe.Dest.xNome;
-    sArquivoXML             := NFe.NotasFiscais.Items[0].XML;
 
-    lbEmitente.Caption      := copy(sEmitente, 0, 40);
-    lbEmitente.Visible      := True;
-    lbDestinatario.Caption  := copy(sDestinatario, 0, 40);
-    lbDestinatario.Visible  := True;
-    lbChave.Caption         := formatarChaveAcesso(sChaveAcesso);
-    lbChave.Visible         := True;
-    lbValorNota.Caption     := 'R$ '+ FormatFloat('#,0.00', ValorTotal);
-    lbValorNota.Visible     := True;
-    lbValorItens.Caption    := 'R$ '+ FormatFloat('#,0.00', ValorTotalItens);
-    lbValorItens.Visible    := True;
+procedure TfrmMain.importaXML;
+var i: integer;
+begin
+  Nfe.NotasFiscais.Clear;
+  if not NFe.NotasFiscais.LoadFromFile(aFileName, false) then
+    Exit;
 
+  DataEmissao             := NFe.NotasFiscais.Items[0].NFe.Ide.dEmi;
+  iNumeroNFe              := NFe.NotasFiscais.Items[0].NFe.Ide.nNF;
+  sSerieNFe               := IntToStr(NFe.NotasFiscais.Items[0].NFe.Ide.serie);
+  sChaveAcesso            := copy(NFe.NotasFiscais.Items[0].NFe.infNFe.ID, 4, 44);
+  sCNPJ                   := NFe.NotasFiscais.Items[0].NFe.Emit.CNPJCPF;
+  ValorTotal              := NFe.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF;
+  ValorTotalItens         := NFe.NotasFiscais.Items[0].NFe.Total.ICMSTot.vProd;
+  sEmitente               := NFe.NotasFiscais.Items[0].NFe.Emit.xNome;
+  sDestinatario           := NFe.NotasFiscais.Items[0].NFe.Dest.xNome;
+  sArquivoXML             := NFe.NotasFiscais.Items[0].XML;
+  for i := 0 to NFe.NotasFiscais.Items[0].NFe.Det.Count -1 do
+  begin
+    with NFe.NotasFiscais.Items[0].NFe.Det do
+    begin
+      iQuantidadeItens  := iQuantidadeItens  + 1;
+    end;
+  end;
+
+  lbEmitente.Caption        := copy(sEmitente, 0, 40);
+  lbEmitente.Visible        := True;
+  lbNumeroNFe.Caption       := intToStr(iNumeroNFe);
+  lbNumeroNFe.Visible       := True;
+  lbDestinatario.Caption    := copy(sDestinatario, 0, 40);
+  lbDestinatario.Visible    := True;
+  lbQuantidadeItens.Caption := inttostr(iQuantidadeItens);
+  lbQuantidadeItens.Visible := True;
+  lbChave.Caption           := formatarChaveAcesso(sChaveAcesso);
+  lbChave.Visible           := True;
+  lbValorNota.Caption       := 'R$ '+ FormatFloat('#,0.00', ValorTotal);
+  lbValorNota.Visible       := True;
+  lbValorItens.Caption      := 'R$ '+ FormatFloat('#,0.00', ValorTotalItens);
+  lbValorItens.Visible      := True;
 end;
 
 
@@ -416,36 +560,19 @@ end;
 
 procedure TfrmMain.pnbGeraDanfeClick(Sender: TObject);
 var
- sXML, NomeArquivo: string;
- SaveDialog: TSaveDialog;
+ NomeArquivo, sPath: string;
 begin
   NFe.NotasFiscais.Clear;
   Try
-    SaveDialog := TSaveDialog.Create(nil);
     if sArquivoXML <> '' then
     begin
-    if rbPaisagem.checked then
-        DANFE.FastFile := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'DANFePaisagem.fr3';
-      if rbRetrato.Checked then
-        DANFE.FastFile := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'DANFeRetrato.fr3';
-      sXML := sArquivoXML;
-      NFe.NotasFiscais.LoadFromString(sXML);
-      ForceDirectories('C:\temp');
-      NFe.DANFE.PathPDF := ('C:\temp\' + sChaveAcesso + '-nfe.PDF');
-      NFe.NotasFiscais.ImprimirPDF;
-      Biblioteca.AbrirArquivo('C:\temp\' + sChaveAcesso + '-nfe.PDF');
-//      if SaveDialog.Execute then
-//      begin
-//        SaveDialog.DefaultExt := '.PDF';
-//        NFe.DANFE.PathPDF := SaveDialog.FileName;
-//        NFe.NotasFiscais.ImprimirPDF;
-//      end;
-
+      VerificaOrientacao;
+      GeraPDF;
     end
     else
       MessageDlg('É necessário importar um arquivo XML para gerar o DANFe.', mtInformation, [mbOK], 0);
   Finally
-    FreeAndNil(SaveDialog);
+    sPath := '';
   End;
 
 end;
@@ -461,14 +588,58 @@ begin
   MoveBtnPanel(TPanel(Sender));
 end;
 
-procedure TfrmMain.SpeedButton1Click(Sender: TObject);
+procedure TfrmMain.pnbSvParamDANFeClick(Sender: TObject);
 begin
-  PageControl1.ActivePage := PageControl1.Pages[4]
+  FPath := edDirPDF.Text;
+  DANFE.Logo := edImgLogo.Text;
+  MEssagedlg('Parametros salvos', mtinformation, [mbok], 0);
 end;
 
-procedure TfrmMain.SpeedButton2Click(Sender: TObject);
+procedure TfrmMain.pnbSvParamDANFeMouseLeave(Sender: TObject);
 begin
-  PageControl1.ActivePage := PageControl1.Pages[3]
+  LeaveBtnPanel(TPanel(Sender));
+end;
+
+procedure TfrmMain.pnbSvParamDANFeMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  MoveBtnPanel(TPanel(Sender));
+end;
+
+procedure TfrmMain.sbBuscaLogoClick(Sender: TObject);
+begin
+  with TOpenDialog.Create(nil) do
+  try
+    Filter := 'Imagens | *.bmp';
+    DefaultExt := '*.bmp';
+    if Execute then
+      edImgLogo.Text := FileName;
+  finally
+
+  end;
+end;
+
+procedure TfrmMain.sbDirPDFClick(Sender: TObject);
+begin
+  sPathTemp := '';
+  with TFileOpenDialog.Create(nil) do
+  try
+    Title := 'Select Directory';
+    Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem];
+    OkButtonLabel := 'Selecionar';
+    DefaultFolder := '%USERPROFILE%\Documents';
+    if Execute then
+      edDirPDF.Text := FileName;
+  finally
+    Free;
+  end
+end;
+
+
+procedure TfrmMain.Panel14Click(Sender: TObject);
+begin
+  if Dados.OpenDialog.Execute then
+    ImportaLoteXML(Dados.OpenDialog.FileName);
 end;
 
 procedure TfrmMain.Panel6Click(Sender: TObject);

@@ -20,4 +20,8 @@ object Dados: TDados
     Left = 96
     Top = 16
   end
+  object XMLDocument: TXMLDocument
+    Left = 80
+    Top = 80
+  end
 end

@@ -14,5 +14,9 @@
     <Transaction>2021/10/29 19:46:16.000.762,D:\Projects\gerador-danfe\src\Project\Unit1.pas=D:\Projects\gerador-danfe\src\View\Styles\FacilitaFiscal.View.Styles.Colors.pas</Transaction>
     <Transaction>2021/10/29 21:50:47.000.087,=D:\Projects\gerador-danfe\src\Project\Unit1.pas</Transaction>
     <Transaction>2021/10/29 21:53:13.000.366,D:\Projects\gerador-danfe\src\Project\Unit1.pas=D:\Projects\gerador-danfe\src\Controller\FacilitaDanfe.Controller.Biblioteca.pas</Transaction>
+    <Transaction>2021/10/30 03:44:08.000.381,=D:\Projects\gerador-danfe\src\Project\Unit1.pas</Transaction>
+    <Transaction>2021/10/30 03:55:52.000.064,D:\Projects\gerador-danfe\src\Project\Unit1.pas=D:\Projects\gerador-danfe\src\View\FacilitaFiscal.View.Web.pas</Transaction>
+    <Transaction>2021/10/30 03:55:52.000.064,D:\Projects\gerador-danfe\src\Project\Unit1.dfm=D:\Projects\gerador-danfe\src\View\FacilitaFiscal.View.Web.dfm</Transaction>
+    <Transaction>2021/10/30 04:20:11.000.603,D:\Projects\gerador-danfe\src\View\FacilitaFiscal.View.Web.pas=</Transaction>
   </Transactions>
 </BorlandProject>
