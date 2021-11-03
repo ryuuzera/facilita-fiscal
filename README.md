@@ -5,7 +5,7 @@
  <h6>Open Source tool to facilitate brazilian invoice and tax document operations<br/>The entire interface was develop using only VCL Delphi 10.3.3 Rio components.<br/>For extras funcionalities I've use the <a href="https://projetoacbr.com.br/">ACBr lib.</a></h6></p>
  
  <div align="center">
- <p><h4> Fade-in effect when starting (Delphi Native)<h6>Efeito ao passar o mouse sobre os componentes</h6></p></h4>
+ <p><h4> Fade-in effect when starting (Delphi Native)<h6>Efeito esmanecer ao iniciar</h6></p></h4>
  <img src="https://github.com/ryuuzera/facilita-fiscal/blob/main/assets/gifs/fade-in.gif"/></div>
 
 
