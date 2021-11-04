@@ -154,6 +154,8 @@ type
     function paginaParametro: boolean;
     procedure VerificaOrientacao;
     procedure GeraPDF;
+    function mascaraData(aData: String): string;
+    function mascaraHora(aHora: String): string;
   public
     FPath: String;
     { Public declarations }
@@ -238,6 +240,24 @@ end;
 procedure TfrmMain.LeaveLabel(aLabel: TLabel);
 begin
    aLabel.Font.Color := COLOR_WHITE;
+end;
+
+function TfrmMain.mascaraData(aData: String): string;
+var
+dia, mes, ano: string;
+begin
+  ano := copy(aData, 0, 4);
+  mes := copy(aData, 5, 2);
+  dia := copy(aData, 7, 2);
+  aData := dia + '/' + mes + '/' + ano;
+  Result := aData;
+end;
+
+function TfrmMain.mascaraHora(aHora: String): string;
+begin
+  insert(':', aHora, 3);
+  insert(':', aHora, 5);
+  Result := aHora;
 end;
 
 procedure TfrmMain.MoveBtnPanel(aPanel: TPanel);
@@ -391,7 +411,8 @@ var
   Node: IXMLDocument;
   NodeCFe, nodenode: IXMLNode;
   i: integer;
-  sNumeroCFe, sTotal: string;
+  sNumeroCFe, sTotal, sIdLote,
+  sNumeroSerie, sData, sHora: string;
   fTotal: double;
   ffTotal: double;
   sChaveAcesso: variant;
@@ -405,11 +426,14 @@ begin
     fTotal := 0.0;
     for i := 0 to NodeCFe.ChildNodes.Count -1 do
     begin
+        NodeCFe.ChildNodes[i].Attributes['xmlns'] := 'http://www.fazenda.sp.gov.br/sat';
         Lista.Add(NodeCFe.ChildNodes[i].XML);
+        NodeCFe.ChildNodes[i].XML;
         {Extrai Chave Acesso}
         sChaveAcesso := NodeCFe.ChildNodes[i]
                          .ChildNodes.FindNode('infCFe')
                           .Attributes['Id'];
+        sChaveAcesso := copy(sChaveAcesso, 4,44);
         {Extrai Numero Cupom}
         sNumeroCFe := NodeCFe.ChildNodes[i]
                         .ChildNodes
@@ -428,11 +452,49 @@ begin
                             .ChildNodes
                               .FindNode('vCFe')
                                 .Text;
+        {Extrai Numero Serie SAT}
+        sNumeroSerie := NodeCFe.ChildNodes[i]
+                        .ChildNodes
+                          .FindNode('infCFe')
+                            .ChildNodes
+                              .FindNode('ide')
+                                .ChildNodes
+                                  .FindNode('nserieSAT')
+                                    .Text;
+        {Extrai Data}
+        sData := NodeCFe.ChildNodes[i]
+                    .ChildNodes
+                      .FindNode('infCFe')
+                        .ChildNodes
+                          .FindNode('ide')
+                            .ChildNodes
+                              .FindNode('dEmi')
+                                .Text;
+        sData := mascaraData(sData);
+
+        {Extrai Hora}
+        sHora := NodeCFe.ChildNodes[i]
+                    .ChildNodes
+                      .FindNode('infCFe')
+                        .ChildNodes
+                          .FindNode('ide')
+                            .ChildNodes
+                              .FindNode('hEmi')
+                                .Text;
+        sHora := mascaraHora(sHora);
+
+        {Extrai Lote}
+        sIdLote := Node.ChildNodes
+                    .FindNode('envCFe')
+                      .ChildNodes
+                        .FindNode('idLote')
+                          .Text;
+
         sTotal := ReplaceStr(sTotal, '.',',');
         ffTotal := strToFloat(sTotal);
         FTotal := FTotal + ffTotal;
-        Listbox1.Items.Add('Cupom: '+sNumeroCFe+'   Valor Total:  R$'+sTotal);
-        Lista.SaveToFile('C:\temp\'+VarToStr(sChaveAcesso)+'.xml');
+        Listbox1.Items.Add('Cupom: '+sNumeroCFe+'   Valor Total:  R$'+sTotal+' '+sData+' '+sHora);
+        Lista.SaveToFile('C:\temp\'+'AD'+VarToStr(sChaveAcesso)+'.xml');
         Lista.Clear;
     end;
     Listbox1.Items.Add('Valor Total Cupons Importados: R$' +FormatFloat('#,0.00', fTotal) );
